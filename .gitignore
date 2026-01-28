@@ -32,3 +32,4 @@ venv.bak/
 .coverage
 htmlcov/
 *.log
+static/uploads/

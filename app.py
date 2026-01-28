@@ -1,16 +1,22 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
+import uuid
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB file size limit
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -28,6 +34,7 @@ class User(UserMixin, db.Model):
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     country = db.Column(db.String(100))
+    profile_image = db.Column(db.String(200))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -59,6 +66,7 @@ class ProfileForm(FlaskForm):
     city = StringField('City', validators=[Optional(), Length(max=100)])
     state = StringField('State', validators=[Optional(), Length(max=100)])
     country = StringField('Country', validators=[Optional(), Length(max=100)])
+    profile_image = FileField('Profile Picture', validators=[Optional(), FileAllowed(['png', 'jpg', 'jpeg', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
 # Routes
@@ -126,6 +134,10 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -139,6 +151,29 @@ def profile():
         current_user.city = form.city.data.strip() or None
         current_user.state = form.state.data.strip() or None
         current_user.country = form.country.data.strip() or None
+        
+        # Handle profile image upload
+        if form.profile_image.data:
+            file = form.profile_image.data
+            # Generate unique filename to avoid conflicts
+            filename = secure_filename(file.filename)
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+            
+            # Ensure upload directory exists
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            
+            # Delete old profile image if it exists
+            if current_user.profile_image:
+                old_image_path = os.path.join(app.config['UPLOAD_FOLDER'], current_user.profile_image)
+                if os.path.exists(old_image_path):
+                    try:
+                        os.remove(old_image_path)
+                    except Exception:
+                        pass  # Ignore errors when deleting old image
+            
+            # Save new image
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_filename))
+            current_user.profile_image = unique_filename
         
         try:
             db.session.commit()

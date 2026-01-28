@@ -9,6 +9,12 @@ A Flask web application with user authentication and profile management
   - Last Name
   - Display Name
   - Location (City, State, Country)
+  - Profile Picture/Avatar Upload
+- **Profile Picture Upload**: Upload and display custom profile pictures with:
+  - File size limit (2MB maximum)
+  - Supported formats: PNG, JPG, JPEG, GIF
+  - Circular avatar display with blue border
+  - Automatic placeholder with user's initial
 - **Session Management**: Flask-Login integration for secure session handling
 - **Responsive UI**: Clean, modern interface with proper navigation and flash messages
 - **Security**: Protection against open redirect vulnerabilities, secure password storage, and configurable debug mode
