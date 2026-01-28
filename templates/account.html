@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ account.name }} - Flask App{% endblock %}
+
+{% block content %}
+<h2>{{ account.name }}</h2>
+
+<div class="card">
+    <h3>Account Details</h3>
+    <p><strong>Created:</strong> {{ account.created_at.strftime('%Y-%m-%d') }}</p>
+    <p><strong>Owner:</strong> {{ account.owner.username }}</p>
+    <p><strong>Your Role:</strong> 
+        {% if is_owner %}
+            <span class="badge badge-success">Owner</span>
+        {% elif is_admin %}
+            <span class="badge badge-info">Admin</span>
+        {% else %}
+            <span class="badge badge-warning">Member</span>
+        {% endif %}
+    </p>
+</div>
+
+<div class="card">
+    <h3>Members</h3>
+    {% if members %}
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.user.username }}</td>
+                <td>{{ member.user.email }}</td>
+                <td>
+                    {% if member.account.owner_id == member.user_id %}
+                        <span class="badge badge-success">Owner</span>
+                    {% elif member.is_admin %}
+                        <span class="badge badge-info">Admin</span>
+                    {% else %}
+                        <span class="badge badge-warning">Member</span>
+                    {% endif %}
+                </td>
+                <td>{{ member.joined_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No members in this account.</p>
+    {% endif %}
+    
+    <div style="margin-top: 1rem;">
+        <a href="{{ url_for('invite_user', account_id=account.id) }}" class="btn btn-success">Invite User</a>
+    </div>
+</div>
+
+{% if is_admin and pending_invitations %}
+<div class="card">
+    <h3>Pending Invitations</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Invited By</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invitation in pending_invitations %}
+            <tr>
+                <td>{{ invitation.invitee_email }}</td>
+                <td>{{ invitation.inviter.username }}</td>
+                <td>{{ invitation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div style="margin-top: 1rem;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

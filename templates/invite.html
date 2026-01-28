@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Invite User - Flask App{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Invite User to {{ account.name }}</h2>
+    <p style="color: #666; margin-bottom: 2rem;">Invite a user to join this account. They will have member access (no admin permissions).</p>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+            {% if form.email.errors %}
+                {% for error in form.email.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <small style="color: #666;">Enter the email address of the user you want to invite.</small>
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class="btn btn-success") }}
+            <a href="{{ url_for('view_account', account_id=account.id) }}" class="btn btn-secondary" style="margin-left: 1rem;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

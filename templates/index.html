@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Flask App{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome to Flask First</h2>
+    <p>A simple Flask application with user authentication and account management.</p>
+    <div style="margin-top: 2rem;">
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary" style="margin-left: 1rem;">Login</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Features</h3>
+    <ul style="margin-left: 2rem; margin-top: 1rem;">
+        <li>User registration and authentication</li>
+        <li>Dashboard with login tracking and statistics</li>
+        <li>Account management with multiple members</li>
+        <li>Invite users to join your accounts</li>
+        <li>Non-admin permissions for invited users</li>
+    </ul>
+</div>
+{% endblock %}

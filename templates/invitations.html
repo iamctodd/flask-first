@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Invitations - Flask App{% endblock %}
+
+{% block content %}
+<h2>Your Invitations</h2>
+
+<div class="card">
+    {% if invitations %}
+    <p>You have {{ invitations|length }} pending invitation(s).</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Invited By</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invitation in invitations %}
+            <tr>
+                <td>{{ invitation.account.name }}</td>
+                <td>{{ invitation.inviter.username }}</td>
+                <td>{{ invitation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('accept_invitation', invitation_id=invitation.id) }}" class="btn btn-success" style="padding: 0.5rem 1rem;">Accept</a>
+                    <a href="{{ url_for('decline_invitation', invitation_id=invitation.id) }}" class="btn btn-danger" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">Decline</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You have no pending invitations.</p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
