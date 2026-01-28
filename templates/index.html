@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Flask App</h1>
+    {% if current_user.is_authenticated %}
+        <p>Hello, {{ current_user.username }}!</p>
+        {% if current_user.display_name %}
+            <p>Display Name: {{ current_user.display_name }}</p>
+        {% endif %}
+        <p><a href="{{ url_for('profile') }}" class="btn">Edit Profile</a></p>
+    {% else %}
+        <p>Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('register') }}">register</a> to continue.</p>
+    {% endif %}
+{% endblock %}
