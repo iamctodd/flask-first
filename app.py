@@ -85,10 +85,15 @@ def register():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
-        db.session.commit()
         
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('login'))
+        try:
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred during registration. Please try again.', 'danger')
+            return render_template('register.html', form=form)
     
     return render_template('register.html', form=form)
 
@@ -105,7 +110,10 @@ def login():
             login_user(user)
             flash('Logged in successfully!', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('profile'))
+            # Validate next parameter to prevent open redirect vulnerability
+            if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                return redirect(next_page)
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password.', 'danger')
     
@@ -124,15 +132,20 @@ def profile():
     form = ProfileForm()
     
     if form.validate_on_submit():
-        current_user.first_name = form.first_name.data
-        current_user.last_name = form.last_name.data
-        current_user.display_name = form.display_name.data
-        current_user.city = form.city.data
-        current_user.state = form.state.data
-        current_user.country = form.country.data
+        # Convert empty strings to None for consistency
+        current_user.first_name = form.first_name.data.strip() or None
+        current_user.last_name = form.last_name.data.strip() or None
+        current_user.display_name = form.display_name.data.strip() or None
+        current_user.city = form.city.data.strip() or None
+        current_user.state = form.state.data.strip() or None
+        current_user.country = form.country.data.strip() or None
         
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating your profile. Please try again.', 'danger')
         return redirect(url_for('profile'))
     
     # Pre-populate form with existing data
@@ -149,4 +162,4 @@ def profile():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=os.environ.get('FLASK_DEBUG', 'False').lower() == 'true')
