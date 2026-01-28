@@ -64,6 +64,11 @@ body {
     background-color: #34495e;
 }
 
+.nav-link:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
 /* Main Content */
 main {
     flex: 1;
@@ -172,6 +177,11 @@ h2 {
 
 .btn-primary:hover {
     background-color: #2980b9;
+}
+
+.btn:focus {
+    outline: 2px solid #2c3e50;
+    outline-offset: 2px;
 }
 
 /* Info Box */

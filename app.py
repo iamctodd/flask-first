@@ -21,8 +21,13 @@ def index():
 def login():
     """Login page and handler"""
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        # Basic input validation
+        if not username or not password:
+            flash('Username and password are required', 'error')
+            return render_template('login.html')
         
         if username in users and check_password_hash(users[username], password):
             session['user'] = username
