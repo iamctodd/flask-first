@@ -1,9 +1,13 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime
+from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
+import os
+import uuid
 from config import Config
 from models import db, User, LoginHistory, Account, AccountMember, Invitation
-from forms import RegistrationForm, LoginForm, InvitationForm
+from forms import RegistrationForm, LoginForm, InvitationForm, ProfileForm
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -18,6 +22,12 @@ login_manager.login_message = 'Please log in to access this page.'
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
     return User.query.get(int(user_id))
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_file_too_large(e):
+    """Handle file size limit exceeded"""
+    flash('Image Too Large - Maximum file size is 2MB', 'danger')
+    return redirect(url_for('profile'))
 
 
 @app.route('/')
@@ -89,6 +99,72 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """User profile editing"""
+    form = ProfileForm()
+    
+    if form.validate_on_submit():
+        # Update profile fields
+        current_user.first_name = form.first_name.data.strip() or None
+        current_user.last_name = form.last_name.data.strip() or None
+        current_user.display_name = form.display_name.data.strip() or None
+        current_user.city = form.city.data.strip() or None
+        current_user.state = form.state.data.strip() or None
+        current_user.country = form.country.data.strip() or None
+        
+        # Handle profile image upload
+        if form.profile_image.data:
+            file = form.profile_image.data
+            
+            # Check file size manually as additional validation
+            file.seek(0, 2)  # Seek to end of file
+            file_size = file.tell()
+            file.seek(0)  # Reset to beginning
+            
+            if file_size > app.config['MAX_CONTENT_LENGTH']:
+                flash('Image Too Large - Maximum file size is 2MB', 'danger')
+                return redirect(url_for('profile'))
+            
+            # Generate unique filename to avoid conflicts
+            filename = secure_filename(file.filename)
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+            
+            # Ensure upload directory exists
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            
+            # Delete old profile image if it exists
+            if current_user.profile_image:
+                old_image_path = os.path.join(app.config['UPLOAD_FOLDER'], current_user.profile_image)
+                if os.path.exists(old_image_path):
+                    try:
+                        os.remove(old_image_path)
+                    except Exception:
+                        pass  # Ignore errors when deleting old image
+            
+            # Save new image
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_filename))
+            current_user.profile_image = unique_filename
+        
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while updating your profile. Please try again.', 'danger')
+        return redirect(url_for('profile'))
+    
+    # Pre-populate form with existing data
+    if request.method == 'GET':
+        form.first_name.data = current_user.first_name
+        form.last_name.data = current_user.last_name
+        form.display_name.data = current_user.display_name
+        form.city.data = current_user.city
+        form.state.data = current_user.state
+        form.country.data = current_user.country
+    
+    return render_template('profile.html', form=form)
 
 @app.route('/dashboard')
 @login_required
@@ -124,6 +200,10 @@ def dashboard():
                            recent_logins=recent_logins,
                            accounts=accounts)
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded files"""
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/account/<int:account_id>')
 @login_required

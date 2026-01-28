@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, Optional
 from models import User
 
 class RegistrationForm(FlaskForm):
@@ -35,3 +36,15 @@ class InvitationForm(FlaskForm):
     """Form to invite a user to an account"""
     email = StringField('Email Address', validators=[DataRequired(), Email()])
     submit = SubmitField('Send Invitation')
+
+    
+class ProfileForm(FlaskForm):
+    """User profile editing form"""
+    first_name = StringField('First Name', validators=[Optional(), Length(max=100)])
+    last_name = StringField('Last Name', validators=[Optional(), Length(max=100)])
+    display_name = StringField('Display Name', validators=[Optional(), Length(max=100)])
+    city = StringField('City', validators=[Optional(), Length(max=100)])
+    state = StringField('State', validators=[Optional(), Length(max=100)])
+    country = StringField('Country', validators=[Optional(), Length(max=100)])
+    profile_image = FileField('Profile Picture', validators=[Optional(), FileAllowed(['png', 'jpg', 'jpeg', 'gif'], 'Images only!')])
+    submit = SubmitField('Update Profile')

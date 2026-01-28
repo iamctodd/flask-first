@@ -13,6 +13,15 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Profile information
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    display_name = db.Column(db.String(100))
+    city = db.Column(db.String(100))
+    state = db.Column(db.String(100))
+    country = db.Column(db.String(100))
+    profile_image = db.Column(db.String(200))
+        
     # Relationships
     login_history = db.relationship('LoginHistory', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     owned_accounts = db.relationship('Account', backref='owner', lazy='dynamic', cascade='all, delete-orphan')

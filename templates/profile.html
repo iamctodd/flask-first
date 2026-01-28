@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <style>
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid #007bff;
+            object-fit: cover;
+            margin: 20px auto;
+            display: block;
+        }
+        .profile-avatar-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid #007bff;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-size: 60px;
+            color: #6c757d;
+        }
+    </style>
+    
+    <h1>User Profile</h1>
+    
+    <!-- Display Profile Avatar -->
+    {% if current_user.profile_image %}
+        <img src="{{ url_for('uploaded_file', filename=current_user.profile_image) }}" alt="Profile Picture" class="profile-avatar">
+    {% else %}
+        <div class="profile-avatar-placeholder">
+            {{ current_user.username[0].upper() }}
+        </div>
+    {% endif %}
+    
+    <div class="profile-info">
+        <h2>Current Information</h2>
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>First Name:</strong> {{ current_user.first_name or 'Not set' }}</p>
+        <p><strong>Last Name:</strong> {{ current_user.last_name or 'Not set' }}</p>
+        <p><strong>Display Name:</strong> {{ current_user.display_name or 'Not set' }}</p>
+        <p><strong>City:</strong> {{ current_user.city or 'Not set' }}</p>
+        <p><strong>State:</strong> {{ current_user.state or 'Not set' }}</p>
+        <p><strong>Country:</strong> {{ current_user.country or 'Not set' }}</p>
+    </div>
+    
+    <h2>Edit Profile</h2>
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.first_name.label }}
+            {{ form.first_name(class="form-control") }}
+            {% if form.first_name.errors %}
+                {% for error in form.first_name.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.last_name.label }}
+            {{ form.last_name(class="form-control") }}
+            {% if form.last_name.errors %}
+                {% for error in form.last_name.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.display_name.label }}
+            {{ form.display_name(class="form-control") }}
+            {% if form.display_name.errors %}
+                {% for error in form.display_name.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.city.label }}
+            {{ form.city(class="form-control") }}
+            {% if form.city.errors %}
+                {% for error in form.city.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.state.label }}
+            {{ form.state(class="form-control") }}
+            {% if form.state.errors %}
+                {% for error in form.state.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.country.label }}
+            {{ form.country(class="form-control") }}
+            {% if form.country.errors %}
+                {% for error in form.country.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.profile_image.label }}
+            {{ form.profile_image(class="form-control") }}
+            {% if form.profile_image.errors %}
+                {% for error in form.profile_image.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <small class="form-text text-muted">Allowed formats: PNG, JPG, JPEG, GIF. Maximum size: 2MB</small>
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
+{% endblock %}
