@@ -30,6 +30,14 @@ python app.py
 
 The application will be available at `http://localhost:5000`
 
+## Configuration
+
+The application can be configured using environment variables:
+
+- `SECRET_KEY`: Secret key for session management (default: 'dev-secret-key-change-in-production')
+- `DATABASE_URL`: Database connection string (default: 'sqlite:///app.db')
+- `FLASK_DEBUG`: Enable debug mode for development (default: 'False'). Set to 'true' to enable.
+
 ## Usage
 
 1. **Register**: Create a new account at `/register`
