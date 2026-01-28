@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Login - Flask App{% endblock %}
+{% block title %}Register - Flask App{% endblock %}
 
 {% block content %}
 <div class="card" style="max-width: 500px; margin: 0 auto;">
-    <h2>Login</h2>
-    <p style="color: #666; margin-bottom: 2rem;">Welcome back! Please login to your account.</p>
+    <h2>Register</h2>
+    <p style="color: #666; margin-bottom: 2rem;">Create a new account to get started.</p>
     
     <form method="POST">
         {{ form.hidden_tag() }}
@@ -15,6 +15,16 @@
             {{ form.username(class="form-control") }}
             {% if form.username.errors %}
                 {% for error in form.username.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+            {% if form.email.errors %}
+                {% for error in form.email.errors %}
                     <div class="error">{{ error }}</div>
                 {% endfor %}
             {% endif %}
@@ -31,12 +41,22 @@
         </div>
         
         <div class="form-group">
+            {{ form.password2.label }}
+            {{ form.password2(class="form-control") }}
+            {% if form.password2.errors %}
+                {% for error in form.password2.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
             {{ form.submit(class="btn btn-primary") }}
         </div>
     </form>
     
     <p style="margin-top: 1rem;">
-        Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+        Already have an account? <a href="{{ url_for('login') }}">Login here</a>
     </p>
 </div>
 {% endblock %}

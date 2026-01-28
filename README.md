@@ -1,29 +1,14 @@
-# Flask First
-
-A simple Flask web application with login and logout functionality.
+# flask-first
+A Flask application with user authentication, login tracking, and account invitation system.
 
 ## Features
 
-- User authentication (login/logout)
-- Session management
-- Flash messages for user feedback
-- Responsive design with modern CSS
-- Template inheritance using Jinja2
-- Secure password hashing
-
-## Project Structure
-
-```
-flask-first/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
-├── templates/          # HTML templates
-│   ├── base.html      # Base template
-│   ├── index.html     # Home page
-│   └── login.html     # Login page
-└── static/            # Static files
-    └── style.css      # CSS styles
-```
+- **User Authentication**: Register and login with secure password hashing
+- **Login Dashboard**: View your login statistics and recent login history
+- **Login Tracking**: Automatically tracks and displays how many times you've logged in over the last 30 days
+- **Account Management**: Create and manage accounts with multiple members
+- **User Invitations**: Invite other users to join your accounts via email
+- **Permission System**: Invited users have member access (no admin permissions)
 
 ## Installation
 
@@ -33,78 +18,42 @@ git clone https://github.com/iamctodd/flask-first.git
 cd flask-first
 ```
 
-2. Create a virtual environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running the Application
-
-1. Start the Flask development server:
+3. Run the application:
 ```bash
 python app.py
 ```
 
-2. Open your browser and navigate to:
-```
-http://localhost:5000
-```
+The application will be available at `http://localhost:5000`
 
-## Demo Credentials
+## Configuration
 
-- **Username:** admin
-- **Password:** password
+The application can be configured using environment variables:
+
+- `SECRET_KEY`: Secret key for session management (default: 'dev-secret-key-change-in-production')
+- `DATABASE_URL`: Database connection string (default: 'sqlite:///app.db')
+- `FLASK_DEBUG`: Enable debug mode for development (default: 'False'). Set to 'true' to enable.
 
 ## Usage
 
-1. Visit the home page at `http://localhost:5000`
-2. Click "Login" in the navigation bar
-3. Enter the demo credentials
-4. After successful login, you'll be redirected to the home page
-5. Click "Logout" to end your session
+1. **Register**: Create a new account at `/register`
+2. **Login**: Access your account at `/login`
+3. **Dashboard**: View your login statistics and accounts
+4. **Invite Users**: From any account page, click "Invite User" to send an invitation
+5. **Accept Invitations**: Check your invitations at `/invitations` and accept/decline them
 
-## Features Demonstrated
+## Database
 
-- **Routing:** Multiple routes for different pages
-- **Session Management:** User sessions with Flask's session object
-- **Template Rendering:** Dynamic HTML with Jinja2 templates
-- **Form Handling:** POST request handling for login
-- **Flash Messages:** User feedback with Flask's flash messages
-- **Static Files:** CSS styling served from static directory
-- **Security:** Password hashing with Werkzeug
+The application uses SQLite by default. The database file (`app.db`) will be created automatically when you first run the application.
 
-## Deployment
+## Models
 
-For production deployment:
-
-1. Set a secure secret key:
-```bash
-export SECRET_KEY='your-secure-random-key-here'
-```
-
-2. Disable debug mode by modifying `app.py`:
-```python
-app.run(debug=False, host='0.0.0.0', port=5000)
-```
-
-3. Use a production WSGI server like Gunicorn:
-```bash
-pip install gunicorn
-gunicorn app:app
-```
-
-## Note
-
-This is a simple demonstration application. For production use:
-- Use a proper database instead of in-memory user storage
-- Implement proper user registration
-- Add CSRF protection
-- Use environment variables for configuration
-- Add proper logging
-- Implement rate limiting
+- **User**: User accounts with authentication
+- **LoginHistory**: Tracks each login event
+- **Account**: Accounts that can have multiple members
+- **AccountMember**: Membership relation between users and accounts
+- **Invitation**: Pending invitations to join accounts

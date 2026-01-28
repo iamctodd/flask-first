@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Flask App{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ current_user.username }}!</h2>
+
+<div class="card">
+    <h3>Login Statistics</h3>
+    <p style="font-size: 1.25rem; margin-top: 1rem;">
+        You have logged in <strong>{{ recent_login_count }}</strong> times in the last 30 days.
+    </p>
+    
+    {% if recent_logins %}
+    <h4 style="margin-top: 2rem;">Recent Login History</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Login Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for login in recent_logins %}
+            <tr>
+                <td>{{ login.login_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Your Accounts</h3>
+    {% if accounts %}
+    <table>
+        <thead>
+            <tr>
+                <th>Account Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in accounts %}
+            <tr>
+                <td>{{ item.account.name }}</td>
+                <td>
+                    {% if item.is_owner %}
+                        <span class="badge badge-success">Owner</span>
+                    {% elif item.is_admin %}
+                        <span class="badge badge-info">Admin</span>
+                    {% else %}
+                        <span class="badge badge-warning">Member</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('view_account', account_id=item.account.id) }}" class="btn btn-primary" style="padding: 0.5rem 1rem;">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>You don't have any accounts yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
